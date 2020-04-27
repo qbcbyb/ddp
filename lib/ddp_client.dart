@@ -32,6 +32,7 @@ class DdpClient implements ConnectionNotifier, StatusNotifier {
   WriterLogger _writeLog;
   ReaderStats _readSocketStats;
   ReaderStats _readStats;
+  StreamSubscription<dynamic> _readStatsFlag;
   ReaderLogger _readLog;
 
   int _reconnects;
@@ -443,8 +444,12 @@ class DdpClient implements ConnectionNotifier, StatusNotifier {
     this._messageHandlers['updated'] = (msg) {};
   }
 
-  void inboxManager() {
-    this._readStats.listen((event) {
+  Future<void> inboxManager() async {
+    if (this._readStatsFlag != null) {
+      await this._readStatsFlag.cancel();
+      this._readStatsFlag = null;
+    }
+    this._readStatsFlag = this._readStats.listen((event) {
       final message = json.decode(event) as Map<String, dynamic>;
       if (message.containsKey('msg')) {
         final mtype = message['msg'];
