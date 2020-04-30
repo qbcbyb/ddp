@@ -1,11 +1,13 @@
 part of ddp;
 
 typedef void UpdateListener(
-    String collection,
-    String operation,
-    String id,
-    Map<String, dynamic> doc,
+  String collection,
+  Operation operation,
+  String id,
+  Map<String, dynamic> doc,
 );
+
+enum Operation { added, changed, removed, reseted }
 
 Tuple2<String, Map<String, dynamic>> _parseUpdate(Map<String, dynamic> update) {
   if (update.containsKey('id')) {
@@ -57,7 +59,7 @@ class KeyCache implements Collection {
 
   KeyCache(this.name, this._items, this._listeners);
 
-  void _notify(String operation, String id, Map<String, dynamic> doc) {
+  void _notify(Operation operation, String id, Map<String, dynamic> doc) {
     this._listeners.forEach((listener) {
       listener(this.name, operation, id, doc);
     });
@@ -68,7 +70,7 @@ class KeyCache implements Collection {
     final pair = _parseUpdate(msg);
     if (pair.item2 != null) {
       this._items[pair.item1] = pair.item2;
-      this._notify('create', pair.item1, pair.item2);
+      this._notify(Operation.added, pair.item1, pair.item2);
     }
   }
 
@@ -83,7 +85,7 @@ class KeyCache implements Collection {
         final item = this._items[pair.item1];
         pair.item2.forEach((key, value) => item[key] = value);
         this._items[pair.item1] = item;
-        this._notify('update', pair.item1, item);
+        this._notify(Operation.changed, pair.item1, item);
       }
     }
   }
@@ -99,13 +101,13 @@ class KeyCache implements Collection {
     final pair = _parseUpdate(msg);
     if (pair.item1.isNotEmpty) {
       this._items.remove(pair.item1);
-      this._notify('remove', pair.item1, null);
+      this._notify(Operation.removed, pair.item1, null);
     }
   }
 
   @override
   void _reset() {
-    this._notify('reset', '', null);
+    this._notify(Operation.reseted, '', null);
   }
 
   @override
@@ -147,7 +149,9 @@ class _MockCache implements Collection {
   @override
   void addUpdateListener(UpdateListener listener) {}
   @override
-  bool removeUpdateListener(UpdateListener listener) { return true; }
+  bool removeUpdateListener(UpdateListener listener) {
+    return true;
+  }
 
   @override
   Map<String, Map<String, dynamic>> findAll() => {};
