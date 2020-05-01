@@ -110,7 +110,9 @@ class ReaderLogger extends ReaderProxy with LoggerMixin {
   ReaderLogger(Stream reader) : super(reader);
 
   factory ReaderLogger.text(Stream reader) => ReaderLogger(reader)
-    .._logger = ((Object obj) => print('<- $obj'))
+    .._logger = ((Object obj) {
+      debugPrint('<- $obj');
+    })
     ..active = true
     .._dtype = LoggingDataType.DataText
     ..truncate = 80;
@@ -138,7 +140,7 @@ class WriterLogger extends WriterProxy with LoggerMixin {
   WriterLogger(StreamSink writer) : super(writer);
 
   factory WriterLogger.text(StreamSink writer) => WriterLogger(writer)
-    .._logger = ((Object obj) => print('-> $obj'))
+    .._logger = ((Object obj) => debugPrint('-> $obj'))
     ..active = true
     .._dtype = LoggingDataType.DataText
     ..truncate = 80;
