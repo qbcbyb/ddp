@@ -115,7 +115,7 @@ class ReaderLogger extends ReaderProxy with LoggerMixin {
     })
     ..active = true
     .._dtype = LoggingDataType.DataText
-    ..truncate = 80;
+    ..truncate = 120;
 
   @override
   StreamSubscription listen(
@@ -143,7 +143,7 @@ class WriterLogger extends WriterProxy with LoggerMixin {
     .._logger = ((Object obj) => debugPrint('-> $obj'))
     ..active = true
     .._dtype = LoggingDataType.DataText
-    ..truncate = 80;
+    ..truncate = 120;
 
   @override
   void add(event) {
